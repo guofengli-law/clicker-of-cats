@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cat Owner Clicker</title>
+  <style>
+    :root {
+      --bg1: #fff4dc;
+      --bg2: #ffcfdc;
+      --card: rgba(255,255,255,.88);
+      --ink: #3c2d35;
+      --pink: #ff6f91;
+      --pink-dark: #e34d73;
+      --gold: #ffc83d;
+      --green: #42b883;
+      --shadow: 0 12px 30px rgba(78, 45, 60, .16);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      background: linear-gradient(135deg, var(--bg1), var(--bg2));
+      overflow-x: hidden;
+    }
+
+    header {
+      text-align: center;
+      padding: 22px 14px 8px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 6vw, 3.8rem);
+      text-shadow: 0 3px 0 #fff;
+    }
+
+    .subtitle {
+      margin-top: 8px;
+      font-weight: 700;
+      opacity: .75;
+    }
+
+    .game {
+      width: min(1200px, 95%);
+      margin: 15px auto 40px;
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 18px;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 3px solid rgba(255,255,255,.8);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      backdrop-filter: blur(8px);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .stat {
+      background: #fff;
+      border-radius: 16px;
+      padding: 12px 8px;
+      text-align: center;
+      box-shadow: 0 5px 12px rgba(0,0,0,.07);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.2rem;
+      margin-top: 4px;
+    }
+
+    .speech {
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      border: 3px solid #ffd0dc;
+      border-radius: 18px;
+      padding: 12px;
+      text-align: center;
+      font-weight: 800;
+      line-height: 1.35;
+      margin-bottom: 14px;
+    }
+
+    .cat-area {
+      min-height: 420px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      border-radius: 22px;
+      background:
+        radial-gradient(circle at 20% 15%, rgba(255,255,255,.9) 0 5%, transparent 6%),
+        radial-gradient(circle at 80% 25%, rgba(255,255,255,.65) 0 4%, transparent 5%),
+        linear-gradient(#bcecff 0 62%, #9ae073 62%);
+      overflow: hidden;
+    }
+
+    .cat-button {
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      font-size: clamp(9rem, 22vw, 15rem);
+      line-height: 1;
+      filter: drop-shadow(0 15px 10px rgba(0,0,0,.18));
+      user-select: none;
+      transition: transform .08s ease;
+      touch-action: manipulation;
+    }
+
+    .cat-button:active { transform: scale(.91) rotate(-2deg); }
+    .cat-button.bounce { animation: bounce .22s ease; }
+
+    @keyframes bounce {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.13) rotate(3deg); }
+      100% { transform: scale(1); }
+    }
+
+    .float-text {
+      position: absolute;
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: #fff;
+      text-shadow: 0 2px 3px #a32450;
+      pointer-events: none;
+      animation: floatUp .8s ease-out forwards;
+    }
+
+    @keyframes floatUp {
+      from { transform: translateY(0) scale(.8); opacity: 1; }
+      to { transform: translateY(-90px) scale(1.3); opacity: 0; }
+    }
+
+    .progress-wrap {
+      margin-top: 14px;
+      background: #fff;
+      border-radius: 18px;
+      padding: 12px;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 800;
+      margin-bottom: 8px;
+      gap: 10px;
+    }
+
+    .progress {
+      height: 20px;
+      background: #eee;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress > div {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--pink), var(--gold));
+      transition: width .4s ease;
+    }
+
+    .shop-title {
+      margin: 0 0 10px;
+      text-align: center;
+      font-size: 1.8rem;
+    }
+
+    .shop-grid {
+      display: grid;
+      gap: 10px;
+      max-height: 660px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .offer {
+      border: 0;
+      width: 100%;
+      border-radius: 16px;
+      padding: 12px;
+      background: #fff;
+      color: var(--ink);
+      text-align: left;
+      cursor: pointer;
+      box-shadow: 0 5px 12px rgba(0,0,0,.08);
+      transition: transform .12s, opacity .12s;
+    }
+
+    .offer:hover { transform: translateY(-2px); }
+    .offer:disabled { opacity: .48; cursor: not-allowed; transform: none; }
+
+    .offer-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 900;
+      gap: 10px;
+    }
+
+    .offer-desc {
+      font-size: .9rem;
+      opacity: .74;
+      margin-top: 5px;
+    }
+
+    .bundle {
+      background: linear-gradient(135deg, #fff6b7, #ffd4e3);
+      border: 2px solid #ffbb3c;
+    }
+
+    .controls {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .small-btn {
+      border: 0;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-weight: 800;
+      cursor: pointer;
+      background: #fff;
+      box-shadow: 0 4px 10px rgba(0,0,0,.08);
+    }
+
+    .small-btn.danger { color: #b52f4f; }
+
+    .notice {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      background: #34252d;
+      color: white;
+      padding: 12px 18px;
+      border-radius: 999px;
+      font-weight: 800;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s;
+      z-index: 5;
+      text-align: center;
+    }
+
+    .notice.show { opacity: 1; }
+
+    @media (max-width: 850px) {
+      .game { grid-template-columns: 1fr; }
+      .cat-area { min-height: 340px; }
+      .shop-grid { max-height: none; }
+    }
+
+    @media (max-width: 480px) {
+      .stats { grid-template-columns: 1fr; }
+      .panel { padding: 12px; border-radius: 18px; }
+      .cat-area { min-height: 300px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🐾 Cat Owner Clicker 🐾</h1>
+    <div class="subtitle">Click your cat, earn treats, buy upgrades, and become the King Owner!</div>
+  </header>
+
+  <main class="game">
+    <section class="panel">
+      <div class="stats">
+        <div class="stat">Cat Treats<strong id="treats">0</strong></div>
+        <div class="stat">Per Click<strong id="perClick">1</strong></div>
+        <div class="stat">Per Second<strong id="perSecond">0</strong></div>
+      </div>
+
+      <div id="speech" class="speech">Welcome! Your cat thinks you are a new Owner. Give the cat some love!</div>
+
+      <div id="catArea" class="cat-area">
+        <button id="catButton" class="cat-button" aria-label="Click the cat">🐱</button>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-label">
+          <span id="rankLabel">Rank: Owner</span>
+          <span id="timeLabel">0h 0m played</span>
+        </div>
+        <div class="progress"><div id="rankProgress"></div></div>
+        <div id="nextRank" style="text-align:center; margin-top:7px; font-weight:700; opacity:.7;">
+          10 hours until Good Owner
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="small-btn" id="saveBtn">Save Game</button>
+        <button class="small-btn danger" id="resetBtn">Reset Game</button>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <h2 class="shop-title">🛒 Cat Shop</h2>
+      <div id="shop" class="shop-grid"></div>
+    </aside>
+  </main>
+
+  <div id="notice" class="notice"></div>
+
+  <script>
+    const SAVE_KEY = "catOwnerClickerSaveV1";
+
+    const ranks = [
+      { name: "Owner", hours: 0, message: "You are my Owner! Keep taking care of me!" },
+      { name: "Good Owner", hours: 10, message: "Welcome back, Good Owner! You make me purr!" },
+      { name: "Great Owner", hours: 20, message: "Welcome back, Great Owner! You are amazing!" },
+      { name: "Best Owner", hours: 30, message: "Welcome back, Best Owner! I am the luckiest cat!" },
+      { name: "King Owner", hours: 40, message: "Welcome back, King Owner! You are the greatest cat owner ever!" }
+    ];
+
+    const shopItems = [
+      { id: "softBrush", name: "Soft Brush", baseCost: 25, type: "click", amount: 1, desc: "+1 treat per click" },
+      { id: "toyMouse", name: "Toy Mouse", baseCost: 80, type: "click", amount: 3, desc: "+3 treats per click" },
+      { id: "catBed", name: "Cozy Cat Bed", baseCost: 180, type: "auto", amount: 2, desc: "+2 treats every second" },
+      { id: "scratcher", name: "Scratching Post", baseCost: 450, type: "auto", amount: 6, desc: "+6 treats every second" },
+      { id: "tuna", name: "Tuna Dinner", baseCost: 900, type: "click", amount: 15, desc: "+15 treats per click" },
+      { id: "catTree", name: "Giant Cat Tree", baseCost: 2200, type: "auto", amount: 25, desc: "+25 treats every second" },
+      { id: "laser", name: "Super Laser Toy", baseCost: 6500, type: "click", amount: 80, desc: "+80 treats per click" },
+      { id: "robot", name: "Robot Cat Sitter", baseCost: 15000, type: "auto", amount: 160, desc: "+160 treats every second" }
+    ];
+
+    const bundles = [
+      { id: "starterBundle", name: "Starter Bundle", cost: 1200, desc: "+25 per click and +15 per second", click: 25, auto: 15 },
+      { id: "royalBundle", name: "Royal Bundle", cost: 25000, desc: "+250 per click and +500 per second", click: 250, auto: 500 }
+    ];
+
+    let state = {
+      treats: 0,
+      perClick: 1,
+      perSecond: 0,
+      playSeconds: 0,
+      lastTick: Date.now(),
+      lastVisitDate: new Date().toDateString(),
+      purchases: {},
+      bundlesBought: {}
+    };
+
+    const el = {
+      treats: document.getElementById("treats"),
+      perClick: document.getElementById("perClick"),
+      perSecond: document.getElementById("perSecond"),
+      catButton: document.getElementById("catButton"),
+      catArea: document.getElementById("catArea"),
+      speech: document.getElementById("speech"),
+      rankLabel: document.getElementById("rankLabel"),
+      timeLabel: document.getElementById("timeLabel"),
+      rankProgress: document.getElementById("rankProgress"),
+      nextRank: document.getElementById("nextRank"),
+      shop: document.getElementById("shop"),
+      notice: document.getElementById("notice")
+    };
+
+    function formatNumber(n) {
+      if (n < 1000) return Math.floor(n).toString();
+      const units = ["K", "M", "B", "T"];
+      let value = n;
+      let unit = -1;
+      while (value >= 1000 && unit < units.length - 1) {
+        value /= 1000;
+        unit++;
+      }
+      return value.toFixed(value >= 100 ? 0 : value >= 10 ? 1 : 2) + units[unit];
+    }
+
+    function getRank() {
+      const hours = state.playSeconds / 3600;
+      let current = ranks[0];
+      for (const rank of ranks) {
+        if (hours >= rank.hours) current = rank;
+      }
+      return current;
+    }
+
+    function getNextRank() {
+      const hours = state.playSeconds / 3600;
+      return ranks.find(rank => rank.hours > hours) || null;
+    }
+
+    function itemCost(item) {
+      const owned = state.purchases[item.id] || 0;
+      return Math.floor(item.baseCost * Math.pow(1.55, owned));
+    }
+
+    function showNotice(text) {
+      el.notice.textContent = text;
+      el.notice.classList.add("show");
+      clearTimeout(showNotice.timer);
+      showNotice.timer = setTimeout(() => el.notice.classList.remove("show"), 1500);
+    }
+
+    function renderShop() {
+      el.shop.innerHTML = "";
+
+      shopItems.forEach(item => {
+        const owned = state.purchases[item.id] || 0;
+        const cost = itemCost(item);
+        const button = document.createElement("button");
+        button.className = "offer";
+        button.disabled = state.treats < cost;
+        button.innerHTML = `
+          <div class="offer-top">
+            <span>${item.name} <small>(Owned: ${owned})</small></span>
+            <span>🐟 ${formatNumber(cost)}</span>
+          </div>
+          <div class="offer-desc">${item.desc}</div>
+        `;
+        button.addEventListener("click", () => buyItem(item));
+        el.shop.appendChild(button);
+      });
+
+      bundles.forEach(bundle => {
+        const bought = !!state.bundlesBought[bundle.id];
+        const button = document.createElement("button");
+        button.className = "offer bundle";
+        button.disabled = bought || state.treats < bundle.cost;
+        button.innerHTML = `
+          <div class="offer-top">
+            <span>🎁 ${bundle.name}</span>
+            <span>${bought ? "BOUGHT" : "🐟 " + formatNumber(bundle.cost)}</span>
+          </div>
+          <div class="offer-desc">${bundle.desc}</div>
+        `;
+        button.addEventListener("click", () => buyBundle(bundle));
+        el.shop.appendChild(button);
+      });
+    }
+
+    function buyItem(item) {
+      const cost = itemCost(item);
+      if (state.treats < cost) return;
+
+      state.treats -= cost;
+      state.purchases[item.id] = (state.purchases[item.id] || 0) + 1;
+
+      if (item.type === "click") state.perClick += item.amount;
+      if (item.type === "auto") state.perSecond += item.amount;
+
+      showNotice(`Bought ${item.name}!`);
+      updateUI();
+      saveGame();
+    }
+
+    function buyBundle(bundle) {
+      if (state.bundlesBought[bundle.id] || state.treats < bundle.cost) return;
+
+      state.treats -= bundle.cost;
+      state.perClick += bundle.click;
+      state.perSecond += bundle.auto;
+      state.bundlesBought[bundle.id] = true;
+
+      showNotice(`Opened the ${bundle.name}!`);
+      updateUI();
+      saveGame();
+    }
+
+    function catClick(event) {
+      state.treats += state.perClick;
+
+      el.catButton.classList.remove("bounce");
+      void el.catButton.offsetWidth;
+      el.catButton.classList.add("bounce");
+
+      const rect = el.catArea.getBoundingClientRect();
+      const float = document.createElement("div");
+      float.className = "float-text";
+      float.textContent = `+${formatNumber(state.perClick)} 🐟`;
+
+      const x = event.clientX ? event.clientX - rect.left : rect.width / 2;
+      const y = event.clientY ? event.clientY - rect.top : rect.height / 2;
+      float.style.left = `${Math.max(20, Math.min(rect.width - 100, x - 35))}px`;
+      float.style.top = `${Math.max(40, y - 30)}px`;
+
+      el.catArea.appendChild(float);
+      setTimeout(() => float.remove(), 850);
+
+      updateUI();
+    }
+
+    function updateRankUI() {
+      const hours = state.playSeconds / 3600;
+      const current = getRank();
+      const next = getNextRank();
+
+      el.rankLabel.textContent = `Rank: ${current.name}`;
+
+      const totalMinutes = Math.floor(state.playSeconds / 60);
+      const shownHours = Math.floor(totalMinutes / 60);
+      const shownMinutes = totalMinutes % 60;
+      el.timeLabel.textContent = `${shownHours}h ${shownMinutes}m played`;
+
+      if (!next) {
+        el.rankProgress.style.width = "100%";
+        el.nextRank.textContent = "Maximum rank reached: King Owner!";
+      } else {
+        const currentHours = current.hours;
+        const sectionLength = next.hours - currentHours;
+        const sectionProgress = ((hours - currentHours) / sectionLength) * 100;
+        el.rankProgress.style.width = `${Math.max(0, Math.min(100, sectionProgress))}%`;
+
+        const remainingSeconds = Math.max(0, next.hours * 3600 - state.playSeconds);
+        const remainingHours = Math.floor(remainingSeconds / 3600);
+        const remainingMinutes = Math.ceil((remainingSeconds % 3600) / 60);
+        el.nextRank.textContent = `${remainingHours}h ${remainingMinutes}m until ${next.name}`;
+      }
+    }
+
+    function updateUI() {
+      el.treats.textContent = formatNumber(state.treats);
+      el.perClick.textContent = formatNumber(state.perClick);
+      el.perSecond.textContent = formatNumber(state.perSecond);
+      updateRankUI();
+      renderShop();
+    }
+
+    function saveGame() {
+      state.lastTick = Date.now();
+      localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+    }
+
+    function loadGame() {
+      const saved = localStorage.getItem(SAVE_KEY);
+      if (!saved) {
+        el.speech.textContent = ranks[0].message;
+        return;
+      }
+
+      try {
+        const loaded = JSON.parse(saved);
+        state = { ...state, ...loaded };
+
+        const now = Date.now();
+        const awaySeconds = Math.max(0, Math.floor((now - (state.lastTick || now)) / 1000));
+        const offlineReward = Math.min(awaySeconds, 8 * 3600) * state.perSecond;
+        if (offlineReward > 0) {
+          state.treats += offlineReward;
+          showNotice(`Your cat earned ${formatNumber(offlineReward)} treats while you were away!`);
+        }
+
+        const today = new Date().toDateString();
+        const rank = getRank();
+
+        if (state.lastVisitDate && state.lastVisitDate !== today) {
+          el.speech.textContent = `🐱 ${rank.message}`;
+        } else {
+          el.speech.textContent = `🐱 ${rank.message}`;
+        }
+
+        state.lastVisitDate = today;
+        state.lastTick = now;
+      } catch (error) {
+        console.error("Could not load save:", error);
+      }
+    }
+
+    function gameTick() {
+      const now = Date.now();
+      const delta = Math.min(2, Math.max(0, (now - state.lastTick) / 1000));
+      state.lastTick = now;
+
+      state.playSeconds += delta;
+      state.treats += state.perSecond * delta;
+      updateUI();
+    }
+
+    el.catButton.addEventListener("click", catClick);
+
+    document.getElementById("saveBtn").addEventListener("click", () => {
+      saveGame();
+      showNotice("Game saved!");
+    });
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      const confirmed = confirm("Reset all treats, upgrades, bundles, playtime, and ranks?");
+      if (!confirmed) return;
+      localStorage.removeItem(SAVE_KEY);
+      location.reload();
+    });
+
+    loadGame();
+    updateUI();
+
+    setInterval(gameTick, 1000);
+    setInterval(saveGame, 5000);
+    window.addEventListener("beforeunload", saveGame);
+  </script>
+</body>
+</html>
+from pathlib import Path
+path=Path('/mnt/data/cat_owner_clicker.html')
+text=path.read_text()
+# modify: add requiredClicks and manualClicks. In state add manualClicks:0
+text=text.replace("playSeconds: 0,","playSeconds: 0,\n      manualClicks: 0,")
+# in catClick add manualClicks++ and decrement timer? We'll change gameTick.
+text=text.replace("state.treats += state.perClick;","state.treats += state.perClick;\n      state.manualClicks++;")
+# replace gameTick body
+old="""      state.playSeconds += delta;
+      state.treats += state.perSecond * delta;
+      updateUI();"""
+new="""      state.treats += state.perSecond * delta;
+
+      // Play time only increases through manual clicks.
+      // Every 10 clicks counts as 1 second of owner time.
+      const earnedSeconds = Math.floor(state
